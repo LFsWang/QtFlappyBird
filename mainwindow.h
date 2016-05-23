@@ -21,12 +21,12 @@ protected:
     void keyPressEvent(QKeyEvent *event);	//鍵盤事件
 
 private slots:
-    void birdAction();			//鳥的動作
+    void updateGame();			//鳥的動作
     void pipeAction();			//綠色管子的動作
     void collisDete();			//碰撞偵測
     void updateBackGround();    //循環背景
     void gameClose();           //關閉遊戲Egg
-    //void gameInit();            //開始遊戲
+    void gameInit();            //開始遊戲
 
 private:
 
@@ -38,19 +38,22 @@ private:
     void gameStart();			 //遊戲開始
     void gameRedy();             //遊戲預備
 
+    void hide_all();
+
     QTimer GlobalClock;
     QPixmap HomeBackGround;
     static const int GB_Delta = 1;
     int BGpos;
 
+    bool isClickDown;
     //Main Menu Btn
     QPushButton btn_home_Start;
     QPushButton btn_home_Rank;
     QPushButton btn_home_Close;
 
-    ROLE *birds;			// 建立一隻角色 - 鳥
-    double birdV;			// 鳥的速度
-    QTimer *birdTimer;
+    ROLE bird;             // 建立一隻角色 - 鳥
+
+    QTimer GameTimer;
     double timedata;			// birdTimer interval
     double birdV_array[15];
     double index_birdV;

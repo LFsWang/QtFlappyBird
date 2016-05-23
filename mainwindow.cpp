@@ -8,7 +8,8 @@
 #include <QDebug>
 #include <cassert>
 #include <QLabel>
-
+#include <QThread>
+#pragma comment(lib, "user32.lib")
 static QImage doubleImage(const QImage &img)
 {
     QImage   res(img.width()*2,img.height(),QImage::Format_RGB32);
@@ -21,7 +22,8 @@ static QImage doubleImage(const QImage &img)
 }
 
 MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+    : QMainWindow(parent),
+      bird(MainWindow::win_width,MainWindow::win_height,this)
 {
     //Load BackGround
     QImageReader Reader(tr(":/Image/Hope_Panorama_e.bmp"));
@@ -65,7 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
         btn_home_Close.setGeometry(xl,starth,w,btn_h);
         btn_home_Close.setText(QString::fromLocal8Bit("結束遊戲"));
     }
-    connect(&btn_home_Start,SIGNAL(clicked()),this,nullptr);
+    connect(&btn_home_Start,SIGNAL(clicked()),this,SLOT(gameInit()));
     connect(&btn_home_Rank ,SIGNAL(clicked()),this,nullptr);
     connect(&btn_home_Close,SIGNAL(clicked()),this,SLOT(gameClose()));
     //btn_home_Close.setGeometry(0,0,100,100);
@@ -74,15 +76,23 @@ MainWindow::MainWindow(QWidget *parent)
     for(int i=0;i<pipeCount;i++)
         pipe[i]=new OBSTACLE(this);
 
-    //創建鳥
-    birds=new ROLE(this);
-
     //Init Clock
     connect(&GlobalClock,SIGNAL(timeout()),this,SLOT(updateBackGround()));
     GlobalClock.start(30);
+
+    GameTimer.stop();
+    connect(&GameTimer,SIGNAL(timeout()),this,SLOT(updateGame()));
+
     //遊戲初始模式
     updateBackGround();
     gameMainMenu();
+}
+
+void MainWindow::hide_all()
+{
+    btn_home_Start.hide();
+    btn_home_Rank.hide();
+    btn_home_Close.hide();
 }
 
 void MainWindow::gameMainMenu()
@@ -107,6 +117,8 @@ void MainWindow::paintEvent(QPaintEvent *)		//繪圖事件, 用来產生背景
 }
 void MainWindow::mousePressEvent(QMouseEvent *event)
 {
+    isClickDown = true;
+    qDebug()<<"press";
     // 在這裡設定按下滑鼠要觸發的功能
 }
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -136,7 +148,7 @@ void MainWindow::createPipe()		//初始化水管，依序排在視窗外
 }
 void MainWindow::createBird(){
 
-    birds->move(60,250);
+    /*birds->move(60,250);
     //鳥的上下速度
     this->birdV_array[0]=-3;
     this->birdV_array[1]=-4;
@@ -160,11 +172,11 @@ void MainWindow::createBird(){
 
     birdTimer=new QTimer(this);
     connect(birdTimer,SIGNAL(timeout()),this,SLOT(birdAction()));
-    timedata=8;
+    timedata=8;*/
 }
 void MainWindow::birdup(){
-    index_birdV=0.0;
-    birdV=birdV_array[int(index_birdV)];
+    /*index_birdV=0.0;
+    birdV=birdV_array[int(index_birdV)];*/
 }
 
 void MainWindow::updateBackGround()
@@ -172,16 +184,34 @@ void MainWindow::updateBackGround()
     if( !HomeBackGround.isNull() ){
         BGpos = (BGpos+GB_Delta) % (HomeBackGround.width()/2);
         this->update();
-        //qDebug()<<"up!";
     }
 }
 
-void MainWindow::birdAction()
+void MainWindow::gameInit()
+{
+    hide_all();
+    bird.reset();
+    bird.show();
+    GameTimer.start(30);
+    //開場動畫!?
+    bird.move_release();
+}
+
+void MainWindow::updateGame()
 {
     //鳥的運動
+    int c = GetAsyncKeyState(VK_LBUTTON);
+    //qDebug()<<c<<((!bird.ishold()) && ( isClickDown || c ));
+    if( (!bird.ishold()) && ( isClickDown || GetAsyncKeyState(VK_LBUTTON) ) ){
+        bird.move_pos(30,-0.5);
+    }
+    else{
+        bird.move_pos(30,0.19);
+    }
+    isClickDown = false;
     // 每次觸發這個function都會更改鳥的位置，x軸不變, y軸加上 birdV成為新的位置
     // XX->pos().x() and XX->pos().y() 是QWidget物件的函式，可以用來取得xy座標位置
-    birds->move(birds->pos().x(),birds->pos().y()+birdV);
+    /*birds->move(birds->pos().x(),birds->pos().y()+birdV);
 
 
     if(index_birdV<14.0)
@@ -197,7 +227,7 @@ void MainWindow::birdAction()
         birds->move(birds->pos().x(),win_height-birds->height()+10); // XX->height可用來取得物件高度
         birdTimer->stop();
         gameLose();
-    }
+    }*/
 }
 void MainWindow::pipeAction()
 {
@@ -218,7 +248,7 @@ void MainWindow::pipeAction()
 void MainWindow::collisDete()
 {
     //水管碰撞偵測
-    int birdRx=birds->pos().x()+30;
+    /*int birdRx=birds->pos().x()+30;
     int birdDy=birds->pos().y()+30;
     for(int i=0;i<pipeCount;i++)
     {
@@ -228,7 +258,7 @@ void MainWindow::collisDete()
                 //碰到水管遊戲結束
                 gameLose();
         }
-    }
+    }*/
 }
 void MainWindow::gameRedy()
 {
@@ -245,6 +275,6 @@ void MainWindow::gameLose()
 void MainWindow::gameStart()
 {
     gamemod=start;
-    birdTimer->start(timedata);
+    //birdTimer->start(timedata);
     pipeTimer->start(pipeTValue);
 }
