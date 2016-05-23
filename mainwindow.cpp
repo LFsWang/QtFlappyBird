@@ -26,7 +26,10 @@ static QImage doubleImage(const QImage &img)
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
-      bird(MainWindow::win_width,MainWindow::win_height,this)
+      bird(MainWindow::win_width,MainWindow::win_height,this),
+      BoomGIF(":/Image/boom.gif"),
+      Boom(this)
+
 {
     //Load BackGround
     QImageReader Reader(tr(":/Image/Hope_Panorama_e.bmp"));
@@ -72,6 +75,10 @@ MainWindow::MainWindow(QWidget *parent)
         btn_home_Close.setGeometry(xl,starth,w,btn_h);
         btn_home_Close.setText(QString::fromLocal8Bit("結束遊戲"));
     }
+
+    //Script
+    Boom.setMovie(&BoomGIF);
+
     connect(&btn_home_Start,SIGNAL(clicked()),this,SLOT(gameInit()));
     connect(&btn_home_Rank ,SIGNAL(clicked()),this,nullptr);
     connect(&btn_home_Close,SIGNAL(clicked()),this,SLOT(gameClose()));
@@ -94,6 +101,9 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::hide_all()
 {
+    Boom.hide();
+    BoomGIF.stop();
+
     btn_home_Start.hide();
     btn_home_Rank.hide();
     btn_home_Close.hide();
@@ -201,6 +211,10 @@ void MainWindow::updateGame()
 
 void MainWindow::gameLose()
 {
+    Boom.setGeometry(bird.pos().x()-253/2,bird.pos().y()-253/2,253,233);
+    Boom.raise();
+    BoomGIF.start();
+    Boom.show();
     QMessageBox::information(this,
                              QString::fromLocal8Bit("哈哈哈"),
                              QString::fromLocal8Bit("N00B"),

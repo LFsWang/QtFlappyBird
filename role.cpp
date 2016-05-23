@@ -1,18 +1,25 @@
-#include "role.h"
-#include <algorithm>
+#include <QDebug>
 
+#include <algorithm>
+#include <cmath>
+
+#include "role.h"
 
 ROLE::ROLE(int _x, int _y, QWidget *parent) : QWidget(parent),win_x(_x),win_y(_y),
     final_x(win_x/2.0 - size)
 {
     this->hide();
-    this->setFixedSize(35,35);
+    this->setFixedSize(35,25);
 
-    pic.load(":/Image/bird1.png");
-    if( pic.isNull() ){
+    picD.load(":/Image/bird1.png");
+    picM.load(":/Image/bird2.png");
+    picU.load(":/Image/bird3.png");
+
+    if( picD.isNull() || picM.isNull() || picU.isNull()  ){
         QMessageBox::information(nullptr,tr("GG"),tr("bird load fail"),QMessageBox::Ok);
         exit(0);
     }
+
     reset();
 }
 
@@ -47,8 +54,8 @@ void ROLE::move_pos(int ms,double A)
     {
         v += A;
         y += v;
-        if( y >= win_y ){
-            y = win_y;
+        if( y >= win_y-height()/2 ){
+            y = win_y-height()/2;
             v = 0;
         }
 
@@ -63,6 +70,11 @@ void ROLE::move_pos(int ms,double A)
 void ROLE::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
-    painter.drawPixmap(0,0,size,size,pic);
+    if( std::abs(v) < 1 )
+        painter.drawPixmap(0,0,size,size,picM);
+    else if( v < 0 )
+        painter.drawPixmap(0,0,size,size,picD);
+    else
+        painter.drawPixmap(0,0,size,size,picU);
 }
 

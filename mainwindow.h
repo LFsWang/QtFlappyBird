@@ -5,6 +5,8 @@
 #include <QApplication>
 #include <QMouseEvent>
 #include <QPushButton>
+#include <QMovie>
+#include <QLabel>
 
 #include <random>
 #include <vector>
@@ -48,6 +50,10 @@ private:
     QPushButton btn_home_Start;
     QPushButton btn_home_Rank;
     QPushButton btn_home_Close;
+
+    //Script
+    QLabel Boom;
+    QMovie BoomGIF;
 
     ROLE bird;             // 建立一隻角色 - 鳥
 

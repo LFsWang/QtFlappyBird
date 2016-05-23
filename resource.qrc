@@ -8,5 +8,6 @@
         <file>Image/pipe2.png</file>
         <file>Image/bg.png</file>
         <file>Image/Hope_Panorama_e.bmp</file>
+        <file>Image/boom.gif</file>
     </qresource>
 </RCC>

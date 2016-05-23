@@ -26,7 +26,7 @@ protected:
     void paintEvent(QPaintEvent *);
 
 private:
-    QPixmap pic;
+    QPixmap picM,picU,picD;
     const int win_x;
     const int win_y;
     const double final_x;
