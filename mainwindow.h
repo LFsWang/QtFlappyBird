@@ -5,9 +5,12 @@
 #include <QApplication>
 #include <QMouseEvent>
 #include <QPushButton>
+
+#include <random>
+#include <vector>
+
 #include <role.h>
 #include <obstacle.h>
-
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -21,25 +24,20 @@ protected:
     void keyPressEvent(QKeyEvent *event);	//鍵盤事件
 
 private slots:
-    void updateGame();			//鳥的動作
-    void pipeAction();			//綠色管子的動作
-    void collisDete();			//碰撞偵測
+    void updateGame();			//
     void updateBackGround();    //循環背景
     void gameClose();           //關閉遊戲Egg
     void gameInit();            //開始遊戲
 
 private:
-
-    void birdup();              // 設定鳥飛行速度參數
-    void createPipe();			// 產生水管
-    void createBird();          // 產生角色 - 鳥
     void gameMainMenu();        //Game init
     void gameLose();			 //遊戲結束
     void gameStart();			 //遊戲開始
     void gameRedy();             //遊戲預備
-
+    bool isTouch(); 			//碰撞偵測
     void hide_all();
 
+    std::mt19937 mt_rand;
     QTimer GlobalClock;
     QPixmap HomeBackGround;
     static const int GB_Delta = 1;
@@ -53,26 +51,30 @@ private:
 
     ROLE bird;             // 建立一隻角色 - 鳥
 
+    static const int pipeCount=5;   // pipe 數量
+    OBSTACLE pipe[pipeCount];       // 建立水管
+
     QTimer GameTimer;
     double timedata;			// birdTimer interval
-    double birdV_array[15];
-    double index_birdV;
+
     enum class WindowsState{
         WINDWO_NONE,
         WINDOW_HOME
     };
     WindowsState window_mode;
-    enum{lose=0,start=1,redy=2};  // Enum三個參數, 代表遊戲狀態
-    int gamemod;		//目前遊戲狀態, 0=lose, 1=start, 2=redy
-    // 遊戲狀態預設流程： redy -> start -> lose -> redy -> start .... 不斷循環
-    enum{pipeCount=5};		//  pipe 數量
-    OBSTACLE *pipe[pipeCount];	// 建立水管
-    QTimer *pipeTimer;
-    int pipeTValue;     // pipeTimer interval
-    int pipeXgap;		// 管子間距
-    int lastPipe;		// the flag of rightest pipe
 
-    static const int win_width =380;      // 視窗寬度
+
+    struct Level{
+        int distance;           ///< 回合長度
+        int speed;              ///< 移動速度
+        std::pair<int,int> Gap; ///< 洞口大小
+        std::string name;       ///< 關卡提示
+    };
+    std::vector<Level> LevelTable;
+    int level;
+
+
+    static const int win_width =380;     // 視窗寬度
     static const int win_height=450;     // 視窗高度
 };
 

@@ -47,7 +47,15 @@ void ROLE::move_pos(int ms,double A)
     {
         v += A;
         y += v;
-        if( y >= win_y )y = win_y;
+        if( y >= win_y ){
+            y = win_y;
+            v = 0;
+        }
+
+        if( y <= 0     ){
+            y = 0;
+            v = 0;
+        }
     }
     this->move(static_cast<int>(x),static_cast<int>(y));
 }
